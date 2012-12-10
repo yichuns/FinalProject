@@ -158,7 +158,7 @@ I made convergence test to all metals and had the following table.
 | encut(eV) | 450     | 400 | 400 | 450 | 400 | 400 |
 | kpoints   | Default |   4 |   6 |   6 |   4 |   6 |
 
-The complete codes can be found at [[./convergence-study.org]]
+The complete codes can be found at [[https://github.com/yichuns/Finalproject/blob/master/convergence-study.org][convergence-study.org]]
 
 
 ** clean slab energy
@@ -333,7 +333,7 @@ plt.savefig('images/Ni/bridge-Slab-energy.png')
 #+ATTR_LaTeX: placement=[H]
 [[./images/Ni/bridge-Slab-energy.png]]
 
-The complete codes for all metals can be found at [[./adsorption.org]]
+The complete codes for all metals can be found at [[https://github.com/yichuns/FinalProject/blob/master/Adsorption.org][Adsorption.org]]
 ** adsorption energy
 Here I will take adsortion energy on fcc site of Ni as an example.
 #+BEGIN_SRC python
@@ -369,7 +369,7 @@ plt.show()
 #+ATTR_LaTeX: placement=[H]
 [[./images/Ni/fcc-adsorption.png]]
 
-The complete codes for all metals can be found at [[./Analysis.org]]
+The complete codes for all metals can be found at [[https://github.com/yichuns/FinalProject/blob/master/Analysis.org][Analysis.org]]
 
 * Result and discussion
 #+BEGIN_SRC python
