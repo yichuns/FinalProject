@@ -1,0 +1,985 @@
+Absorption energy
+
+* Ni
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ni', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Ni-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Ni slab energy (eV)')
+plt.savefig('images/Ni/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ni', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Ni-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           calc.calculate()
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ni/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-68.259768, -90.414231, -112.427994, -134.506944]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ni', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Ni-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ni/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-68.153315, -90.307969, -112.332382, -134.398548]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ni', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+
+  constraint2 = FixScaled(atoms.get_cell(),12 , [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Ni-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ni/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+
+* Cu
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Cu', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Cu-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(6,6,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Cu slab energy (eV)')
+plt.savefig('images/Cu/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Cu', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Cu-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Cu/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-47.40269, -62.257578, -77.152218, -91.99182]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Cu', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Cu-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Cu/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-47.320997, -62.1637, -77.062233, -91.90252]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Cu', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+
+  constraint2 = FixScaled(atoms.get_cell(),12 , [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Cu-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Cu/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+
+* Pd
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pd', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Pd-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(6,6,1),
+          encut=450,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Pd slab energy (eV)')
+plt.savefig('images/Pd/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pd', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Pd-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pd/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-63.706951, -84.439903, -105.015302, -125.675506]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pd', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Pd-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pd/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-63.518284, -84.277167, -104.869387, -125.506699]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pd', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  constraint2 = FixScaled(atoms.get_cell(),12 , [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Pd-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pd/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+
+* Pt
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pt', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Pt-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Pt slab energy (eV)')
+plt.savefig('images/Pt/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pt', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Pt-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pt/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-73.657544, -97.815189, -121.883897, -146.078051]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pt', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Pt-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pt/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-73.22272, -97.507262, -121.55125, -145.739909]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Pt', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+
+  constraint2 = FixScaled(atoms.get_cell(),12, [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Pt-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[4, 4, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Pt/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+
+* Ag
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ag', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Ag-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(6,6,1),
+          encut=450,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Ag slab energy (eV)')
+plt.savefig('images/Ag/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ag', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Ag-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ag/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-36.395806, -47.66573, -58.948321, -70.180039]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ag', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Ag-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ag/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-36.327389, -47.589981, -58.873367, -70.104873]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Ag', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+
+  constraint2 = FixScaled(atoms.get_cell(),12 , [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Ag-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=450,
+           ibrion=2,
+           nsw=50,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Ag/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+
+* Au
+** slab
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+D=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Au', size=(2, 2, t), vacuum=10.0)
+  constraint = FixAtoms(mask=[True for atom in atoms])
+  atoms.set_constraint(constraint)
+  with jasp('surfaces/Au-slab-{0}'.format(t),
+          xc='PBE',
+          kpts=(6,6,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,D)
+plt.xlabel('Number of layers')
+plt.ylabel('Au slab energy (eV)')
+plt.savefig('images/Au/slab.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** fcc site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Au', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='fcc')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Au-slab-{0}-O-fcc'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Au/fcc-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-41.203449, -54.137105, -67.092971, -80.022425]
+
+
+** hcp site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Au', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='hcp')
+
+  constraint = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+  atoms.set_constraint(constraint)
+
+  with jasp('surfaces/Au-slab-{0}-O-hcp'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+print add_e
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Au/hcp-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:
+: [-41.076116, -53.978883, -66.941686, -79.869824]
+
+
+** bridge site
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111, add_adsorbate
+from ase.constraints import FixAtoms,FixScaled
+
+Thickness = [3,4,5,6]
+add_e=[]
+ready=True
+for t in Thickness:
+  atoms = fcc111('Au', size=(2, 2, t), vacuum=10.0)
+
+  add_adsorbate(atoms, 'O', height=1.2, position='bridge')
+
+  constraint1 = FixAtoms(mask=[atom.symbol != 'O' for atom in atoms])
+
+  constraint2 = FixScaled(atoms.get_cell(),12 , [True, True, False])
+  atoms.set_constraint([constraint1,constraint2])
+
+  with jasp('surfaces/Au-slab-{0}-O-bridge'.format(t),
+           xc='PBE',
+           kpts=[6, 6, 1],
+           encut=400,
+           ibrion=2,
+           nsw=25,
+           atoms=atoms) as calc:
+         try:
+           add_e.append(atoms.get_potential_energy())
+         except (VaspSubmitted, VaspQueued):
+           ready=False
+if not ready:
+ import sys; sys.exit()
+
+import matplotlib.pyplot as plt
+plt.plot(Thickness,add_e)
+plt.xlabel('Layers of bulk')
+plt.ylabel('Slab energy with addsorbate on (eV)')
+plt.savefig('images/Au/bridge-Slab-energy.png')
+#+END_SRC
+
+#+RESULTS:

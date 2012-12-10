@@ -1,0 +1,415 @@
+Convergence Study
+* O2
+#+BEGIN_SRC python
+from jasp import *
+from ase import Atom, Atoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D = []
+for encut in encuts:
+    atoms = Atoms([Atom('O', [5,    5, 5], magmom=1),
+                   Atom('O', [6.22, 5, 5], magmom=1)],
+              cell=(10,10,10))
+
+    with jasp('convergence/O2/convergence-{0}'.format(encut),
+              xc='PBE',
+              encut=encut,
+              ismear=0,
+              ispin=2,  # turn spin-polarization on
+              ibrion=2, # this turns relaxation on
+              nsw=10,
+              atoms=atoms) as calc:
+        try:
+            E_O2 = atoms.get_potential_energy()
+        except (VaspSubmitted, VaspQueued):
+            E_O2 = None
+
+        D.append(E_O2)
+
+import matplotlib.pyplot as plt
+plt.plot(encuts, D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('O$_2$ potential energy (eV)')
+plt.savefig('images/convergence/O2-convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Oxygen cutoff energy convergence
+[[./images/convergence/O2-convergence.png]]
+So I choose encut= 450 eV for O$_2$ potential energy.
+
+The metals I choose are Ni,Cu,Pd,Pt,Ag,Au. Each metal run a convergence test to determine encut and k-point.
+* Ni
+** encut
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D=[]
+for encut in encuts:
+   atoms = fcc111('Ni', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Ni/Convergence-e-{0}'.format(encut),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=encut,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(encuts,D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('Ni slab energy (eV)')
+plt.savefig('images/convergence/Ni_encut_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Ni cutoff energy convergence
+[[./images/convergence/Ni_encut_convergence.png]]
+We choose encut = 400eV.
+** kpoint
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+KPTS = [2,3,4,5,6,8,10]
+
+D=[]
+for k in KPTS:
+   atoms = fcc111('Ni', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Ni/Convergence-k-{0}'.format(k),
+          xc='PBE',
+          kpts=(k,k,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(KPTS,D)
+plt.xlabel('K-POINTS')
+plt.ylabel('Ni slab energy (eV)')
+plt.savefig('images/convergence/Ni_kpoint_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Ni kpoint convergence
+[[./images/convergence/Ni_kpoint_convergence.png]]
+We choose kpoint = 4
+* Cu
+** encut
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D=[]
+for encut in encuts:
+   atoms = fcc111('Cu', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Cu/Convergence-e-{0}'.format(encut),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=encut,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(encuts,D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('Cu slab energy (eV)')
+plt.savefig('images/convergence/Cu_encut_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Cu cutoff energy convergence
+[[./images/convergence/Cu_encut_convergence.png]]
+We choose encut = 400eV.
+** kpoint
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+KPTS = [2,3,4,5,6,8,10]
+
+D=[]
+for k in KPTS:
+   atoms = fcc111('Cu', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Cu/Convergence-k-{0}'.format(k),
+          xc='PBE',
+          kpts=(k,k,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(KPTS,D)
+plt.xlabel('K-POINTS')
+plt.ylabel('Cu slab energy (eV)')
+plt.savefig('images/convergence/Cu_kpoint_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Cu kpoint convergence
+[[./images/convergence/Cu_kpoint_convergence.png]]
+We choose kpoint = 6.
+* Pd
+** encut
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D=[]
+for encut in encuts:
+   atoms = fcc111('Pd', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Pd/Convergence-e-{0}'.format(encut),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=encut,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(encuts,D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('Pd slab energy (eV)')
+plt.savefig('images/convergence/Pd_encut_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Pd cutoff energy convergence
+[[./images/convergence/Pd_encut_convergence.png]]
+We choose encut = 450eV.
+** kpoint
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+KPTS = [2,3,4,5,6,8,10]
+
+D=[]
+for k in KPTS:
+   atoms = fcc111('Pd', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Pd/Convergence-k-{0}'.format(k),
+          xc='PBE',
+          kpts=(k,k,1),
+          encut=450,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(KPTS,D)
+plt.xlabel('K-POINTS')
+plt.ylabel('Pd slab energy (eV)')
+plt.savefig('images/convergence/Pd_kpoint_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Pd kpoint convergence
+[[./images/convergence/Pd_kpoint_convergence.png]]
+We choose kpoints = 6.
+* Pt
+** encut
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D=[]
+for encut in encuts:
+   atoms = fcc111('Pt', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Pt/Convergence-e-{0}'.format(encut),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=encut,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(encuts,D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('Pt slab energy (eV)')
+plt.savefig('images/convergence/Pt_encut_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Pt cutoff energy convergence
+[[./images/convergence/Pt_encut_convergence.png]]
+We choose encut = 400eV.
+** kpoint
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+KPTS = [2,3,4,5,6,8,10]
+
+D=[]
+for k in KPTS:
+   atoms = fcc111('Pt', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Pt/Convergence-k-{0}'.format(k),
+          xc='PBE',
+          kpts=(k,k,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(KPTS,D)
+plt.xlabel('K-POINTS')
+plt.ylabel('Pt slab energy (eV)')
+plt.savefig('images/convergence/Pt_kpoint_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Pt kpoint convergence
+[[./images/convergence/Pt_kpoint_convergence.png]]
+We choose kpoint = 4.
+* Au
+** encut
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+encuts = [250, 300, 350, 400, 450, 500, 550]
+
+D=[]
+for encut in encuts:
+   atoms = fcc111('Au', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Au/Convergence-e-{0}'.format(encut),
+          xc='PBE',
+          kpts=(4,4,1),
+          encut=encut,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(encuts,D)
+plt.xlabel('ENCUT (eV)')
+plt.ylabel('Au slab energy (eV)')
+plt.savefig('images/convergence/Au_encut_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Au cutoff energy convergence
+[[./images/convergence/Au_encut_convergence.png]]
+We choose encut = 400eV.
+** kpoint
+#+BEGIN_SRC python
+from jasp import *
+from ase.lattice.surface import fcc111
+from ase.constraints import FixAtoms
+KPTS = [2,3,4,5,6,8,10]
+
+D=[]
+for k in KPTS:
+   atoms = fcc111('Au', size=(2,2,3), vacuum=10.0)
+   constraint = FixAtoms(mask=[True for atom in atoms])
+   atoms.set_constraint(constraint)
+
+   with jasp('convergence/Au/Convergence-k-{0}'.format(k),
+          xc='PBE',
+          kpts=(k,k,1),
+          encut=400,
+          atoms=atoms) as calc:
+    try:
+       slab_e = atoms.get_potential_energy()
+    except (VaspSubmitted,VaspQueued):
+       slab_e=None
+
+    D.append(slab_e)
+import matplotlib.pyplot as plt
+plt.plot(KPTS,D)
+plt.xlabel('K-POINTS')
+plt.ylabel('Au slab energy (eV)')
+plt.savefig('images/convergence/Au_kpoint_convergence.png')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+#+caption:Au kpoint convergence
+[[./images/convergence/Au_kpoint_convergence.png]]
+We choose kpoint = 6.
+
+
+* Conclusion
+#+caption: Parameters determinded by convergence study
+|           | O2      |  Ni |  Cu |  Pd |  Pt |  Au |
+|-----------+---------+-----+-----+-----+-----+-----|
+| encut(eV) | 450     | 400 | 400 | 450 | 400 | 400 |
+| kpoints   | Default |   4 |   6 |   6 |   4 |   6 |

@@ -1,0 +1,98 @@
+* resultcombine
+#+BEGIN_SRC python
+from jasp import *
+import matplotlib.pyplot as plt
+Thickness = [3,5,6]
+elements=['Ni','Cu','Pt','Pd','Au']
+plt.figure()
+
+for e in elements:
+ for t in Thickness:
+  with jasp('surfaces/{1}-slab-{0}-O-fcc'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_fcc = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}-O-hcp'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_hcp = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}-O-bridge'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_bridge = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab = atoms.get_potential_energy()
+
+  with jasp('convergence/O2/convergence-400') as calc:
+       atoms = calc.get_atoms()
+       e_O2 = atoms.get_potential_energy()
+
+  Hads_fcc=e_slab_o_fcc - e_slab - 0.5*e_O2
+  Hads_hcp=e_slab_o_hcp - e_slab - 0.5*e_O2
+  Hads_bridge=e_slab_o_bridge - e_slab - 0.5*e_O2
+  layer=[t,t,t]
+  barrier=[Hads_fcc,Hads_bridge,Hads_hcp]
+
+  plt.plot(layer,barrier,linestyle='none',marker='^',color='c')
+
+
+plt.xlim(2,7)
+plt.xlabel('Number of layers')
+plt.ylabel('Absorption energy of O2 on metals (eV)')
+
+plt.savefig('images/result.png')
+
+plt.show()
+
+#+END_SRC
+
+#+RESULTS:
+
+* barriercombine
+#+BEGIN_SRC python
+from jasp import *
+import matplotlib.pyplot as plt
+Thickness = [3,5,6]
+elements=['Ni','Cu','Pt','Pd','Au']
+for t in Thickness:
+ plt.figure()
+ for e in elements:
+  with jasp('surfaces/{1}-slab-{0}-O-fcc'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_fcc = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}-O-hcp'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_hcp = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}-O-bridge'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab_o_bridge = atoms.get_potential_energy()
+
+  with jasp('surfaces/{1}-slab-{0}'.format(t,e)) as calc:
+       atoms = calc.get_atoms()
+       e_slab = atoms.get_potential_energy()
+
+  with jasp('convergence/O2/convergence-400') as calc:
+       atoms = calc.get_atoms()
+       e_O2 = atoms.get_potential_energy()
+
+  Hads_fcc=e_slab_o_fcc - e_slab - 0.5*e_O2
+  Hads_hcp=e_slab_o_hcp - e_slab - 0.5*e_O2
+  Hads_bridge=e_slab_o_bridge - e_slab - 0.5*e_O2
+  x=[1,2,3]
+  barrier=[Hads_fcc,Hads_bridge,Hads_hcp]
+
+  plt.plot(x,barrier)
+
+ plt.xlabel('Displacement of O')
+ plt.ylabel('Absorption energy of O2 on metals (eV)')
+ plt.title('Barrier on {0} layers of different metals'.format(t))
+ plt.legend(elements)
+ plt.savefig('images/barrier-{0}.png'.format(t))
+ plt.show()
+
+#+END_SRC
+
+#+RESULTS:
